@@ -1,39 +1,94 @@
-// Enemies our player must avoid
-var Enemy = function() {
-    // Variables applied to each of our instances go here,
-    // we've provided one for you to get started
+const PLAYER_MOVE_Y = 83;
+const PLAYER_MOVE_X = 101;
+var arr = [60,143,226];
 
-    // The image/sprite for our enemies, this uses
-    // a helper we've provided to easily load images
+var Enemy = function() {
+    let index = Math.floor(Math.random() * 3) + 0;
+    let speed = Math.floor(Math.random() * 300) + 150;
+    this.x = -100;
+    this.y = arr[index];
+    this.speed = speed;
     this.sprite = 'images/enemy-bug.png';
 };
 
-// Update the enemy's position, required method for game
-// Parameter: dt, a time delta between ticks
-Enemy.prototype.update = function(dt) {
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
-};
-
-// Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
-// Now write your own player class
-// This class requires an update(), render() and
-// a handleInput() method.
+Enemy.prototype.collision = function() {
+    if((this.x < player.x && this.x > player.x - 75) && (this.y < player.y + 20 && this.y > player.y - 25)){
+        player.reset();
+    }
+}; 
+
+Enemy.prototype.update = function(dt) {
+    this.collision();
+    this.x += dt * this.speed;
+};
 
 
-// Now instantiate your objects.
-// Place all enemy objects in an array called allEnemies
-// Place the player object in a variable called player
+var Player = function() {
+    this.x = 202;
+    this.y = 380;
+    this.sprite = 'images/char-boy.png';
+};
+
+Player.prototype.update = function(dt) {
+};
+
+Player.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
+
+Player.prototype.reset = function() {
+    this.x = 202; 
+    this.y = 380;
+};
+
+var allEnemies = [];
+
+setInterval(function() {
+    let enemy = new Enemy();
+    allEnemies.push(enemy)
+}, 1200);
+
+setTimeout(function () {
+    setInterval(function() {
+        allEnemies.shift();
+    }, 1200)
+}, 5000);
 
 
+var player = new Player();
 
-// This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
+player.handleInput = function(key) {
+    switch(key) {
+        case 'left': 
+            if(player.x > 20) {
+                player.x -= PLAYER_MOVE_X;  
+            } 
+            break;
+
+        case 'up': 
+            if(player.y > 50) {
+                player.y -= PLAYER_MOVE_Y;
+            } else if (player.y == 48) player.reset();
+            break;
+
+        case 'right': 
+            if(player.x < 404) {
+                player.x += PLAYER_MOVE_X;
+            } 
+            break;
+
+        case 'down': 
+            if(player.y < 380) {
+                player.y += PLAYER_MOVE_Y;
+            } 
+            break;
+    }
+}
+
 document.addEventListener('keyup', function(e) {
     var allowedKeys = {
         37: 'left',
@@ -44,3 +99,4 @@ document.addEventListener('keyup', function(e) {
 
     player.handleInput(allowedKeys[e.keyCode]);
 });
+
